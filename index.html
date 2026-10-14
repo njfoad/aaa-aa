@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Element Dev Environment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/index.css" />
+  </head>
+  <body>
+    <!-- Control Panel Sidebar -->
+    <aside class="control-panel">
+      <header class="panel-header">
+        <h1>Dev Environment</h1>
+        <p>MockHost simulation for Element development</p>
+      </header>
+
+      <nav class="tabs">
+        <button class="tab active" data-tab="events">Events</button>
+        <button class="tab" data-tab="logs">API Logs</button>
+        <button class="tab" data-tab="data">Mock Data</button>
+      </nav>
+
+      <div class="tab-content">
+        <!-- Events Tab -->
+        <div class="tab-pane active" id="events-tab">
+          <h3 class="section-title">Interaction Events</h3>
+          <div class="event-grid">
+            <button class="event-btn green" data-event="interaction-accepted">
+              <span class="icon">✓</span>
+              <span>Trigger Interaction Accepted</span>
+            </button>
+            <button class="event-btn red" data-event="interaction-ended">
+              <span class="icon">✕</span>
+              <span>Trigger Interaction Ended</span>
+            </button>
+            <button class="event-btn blue" data-event="status-connected">
+              <span class="icon">●</span>
+              <span>Status: Connected</span>
+            </button>
+            <button class="event-btn orange" data-event="status-hold">
+              <span class="icon">⏸</span>
+              <span>Status: Hold</span>
+            </button>
+            <button class="event-btn purple" data-event="status-wrap-up">
+              <span class="icon">⏱</span>
+              <span>Status: Wrap-Up</span>
+            </button>
+          </div>
+
+          <h3 class="section-title">Consult Events</h3>
+          <div class="event-grid">
+            <button class="event-btn blue" data-event="consult-initiated">
+              <span class="icon">📞</span>
+              <span>Consult Initiated</span>
+            </button>
+            <button class="event-btn green" data-event="consult-connected">
+              <span class="icon">🔗</span>
+              <span>Consult Connected</span>
+            </button>
+            <button class="event-btn red" data-event="consult-ended">
+              <span class="icon">📴</span>
+              <span>Consult Ended</span>
+            </button>
+          </div>
+
+          <h3 class="section-title">Messaging Events</h3>
+          <div class="event-grid">
+            <button class="event-btn blue" data-event="feed-message">
+              <span class="icon">💬</span>
+              <span>Send Customer Message</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- API Logs Tab -->
+        <div class="tab-pane" id="logs-tab">
+          <div id="log-container" class="log-container">
+            <div class="empty-state">
+              <div class="icon">📋</div>
+              <p>No API calls yet</p>
+              <p style="font-size: 12px; margin-top: 4px">
+                Interact with the element to see API logs
+              </p>
+            </div>
+          </div>
+          <button class="clear-btn" id="clear-logs">Clear Logs</button>
+        </div>
+
+        <!-- Mock Data Tab -->
+        <div class="tab-pane" id="data-tab">
+          <div class="data-editor">
+            <select class="data-select" id="data-key-select">
+              <option value="userInfo">User Info</option>
+              <option value="interaction">Interaction</option>
+              <option value="users">Users List</option>
+              <option value="userQueues">User Queues</option>
+              <option value="transferQueues">Transfer Queues</option>
+              <option value="reasonCodes">Reason Codes</option>
+            </select>
+            <textarea class="data-textarea" id="data-editor"></textarea>
+            <button class="save-btn" id="save-data">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Preview Area -->
+    <main class="main-content">
+      <header class="preview-header">
+        <h2>Element Preview</h2>
+        <div class="preview-info">
+          <span class="badge">MockHost Active</span>
+        </div>
+      </header>
+
+      <div class="iframe-container">
+        <div class="iframe-toolbar">
+          <div class="dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="url">/element.html</span>
+        </div>
+        <iframe
+          id="element-iframe"
+          class="element-iframe"
+          sandbox="allow-scripts allow-same-origin"
+          title="Element Preview"
+        ></iframe>
+        <div class="resize-hint">Element renders in sandboxed iframe</div>
+      </div>
+    </main>
+
+    <script type="module">
+      import { MockHost } from "/src/mock/index.ts";
+
+      // Get iframe reference and create MockHost BEFORE loading iframe content
+      const iframe = document.getElementById("element-iframe");
+
+      // Initialize MockHost first
+      const mockHost = new MockHost({
+        iframe: iframe,
+        debug: true,
+        onApiCall: (log) => {
+          addLogEntry(log);
+        },
+      });
+
+      console.log("[DevHost] MockHost initialized");
+
+      // NOW load the iframe content - MockHost is ready to intercept API calls
+      iframe.src = "/element.html";
+
+      // Tab switching
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          // Update active tab
+          document
+            .querySelectorAll(".tab")
+            .forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+
+          // Update active pane
+          const tabId = tab.dataset.tab;
+          document
+            .querySelectorAll(".tab-pane")
+            .forEach((pane) => pane.classList.remove("active"));
+          document.getElementById(`${tabId}-tab`).classList.add("active");
+        });
+      });
+
+      // Event buttons
+      document.querySelectorAll(".event-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const event = btn.dataset.event;
+          const interactionId =
+            mockHost.getMockData().interaction.interactionId;
+
+          switch (event) {
+            case "interaction-accepted":
+              mockHost.triggerInteractionAccepted(interactionId);
+              break;
+            case "interaction-ended":
+              mockHost.triggerInteractionEnded(interactionId);
+              break;
+            case "status-connected":
+              mockHost.triggerInteractionStatusChanged(
+                interactionId,
+                "connected"
+              );
+              break;
+            case "status-hold":
+              mockHost.triggerInteractionStatusChanged(interactionId, "hold");
+              break;
+            case "status-wrap-up":
+              mockHost.triggerInteractionStatusChanged(
+                interactionId,
+                "wrap-up"
+              );
+              break;
+            case "consult-initiated":
+              mockHost.triggerConsultStatusChanged(
+                interactionId,
+                "initiated",
+                "Sarah Johnson"
+              );
+              break;
+            case "consult-connected":
+              mockHost.triggerConsultStatusChanged(
+                interactionId,
+                "connected",
+                "Sarah Johnson"
+              );
+              break;
+            case "consult-ended":
+              mockHost.triggerConsultStatusChanged(
+                interactionId,
+                "ended",
+                "Sarah Johnson"
+              );
+              break;
+            case "feed-message":
+              mockHost.triggerFeedMessage({
+                id: `msg_${Date.now()}`,
+                interactionId,
+                text: "Hello, I need help with my order please.",
+                from: "customer",
+                timestamp: new Date().toISOString(),
+                type: "text",
+              });
+              break;
+          }
+
+          // Visual feedback
+          btn.style.transform = "scale(0.98)";
+          setTimeout(() => {
+            btn.style.transform = "";
+          }, 100);
+        });
+      });
+
+      // API Log rendering
+      function addLogEntry(log) {
+        const container = document.getElementById("log-container");
+
+        // Remove empty state if present
+        const emptyState = container.querySelector(".empty-state");
+        if (emptyState) {
+          emptyState.remove();
+        }
+
+        const entry = document.createElement("div");
+        entry.className = "log-entry";
+        entry.innerHTML = `
+          <div class="log-header">
+            <span class="log-status ${
+              log.success ? "success" : "error"
+            }"></span>
+            <span class="log-method">${log.method}</span>
+            <span class="log-duration">${log.duration.toFixed(1)}ms</span>
+            <span class="log-time">${formatTime(log.timestamp)}</span>
+          </div>
+          <div class="log-details">
+            <div class="log-label">Request Params</div>
+            <pre>${JSON.stringify(log.params, null, 2) || "null"}</pre>
+            <div class="log-label">Response</div>
+            <pre>${JSON.stringify(log.response, null, 2)}</pre>
+          </div>
+        `;
+
+        entry.querySelector(".log-header").addEventListener("click", () => {
+          entry.classList.toggle("expanded");
+        });
+
+        container.insertBefore(entry, container.firstChild);
+      }
+
+      function formatTime(date) {
+        return new Date(date).toLocaleTimeString("en-US", {
+          hour12: false,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      }
+
+      // Clear logs
+      document.getElementById("clear-logs").addEventListener("click", () => {
+        const container = document.getElementById("log-container");
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📋</div>
+            <p>No API calls yet</p>
+            <p style="font-size: 12px; margin-top: 4px;">Interact with the element to see API logs</p>
+          </div>
+        `;
+        mockHost.clearApiCallLogs();
+      });
+
+      // Mock Data Editor
+      const dataSelect = document.getElementById("data-key-select");
+      const dataEditor = document.getElementById("data-editor");
+
+      function loadDataForKey(key) {
+        const data = mockHost.getMockData()[key];
+        dataEditor.value = JSON.stringify(data, null, 2);
+      }
+
+      dataSelect.addEventListener("change", () => {
+        loadDataForKey(dataSelect.value);
+      });
+
+      // Load initial data immediately since mockHost is available
+      loadDataForKey(dataSelect.value);
+
+      document.getElementById("save-data").addEventListener("click", () => {
+        try {
+          const data = JSON.parse(dataEditor.value);
+          mockHost.setMockData(dataSelect.value, data);
+
+          // Visual feedback
+          const btn = document.getElementById("save-data");
+          const originalText = btn.textContent;
+          btn.textContent = "Saved!";
+          btn.style.background = "var(--accent-green)";
+          setTimeout(() => {
+            btn.textContent = originalText;
+            btn.style.background = "";
+          }, 1500);
+        } catch (e) {
+          alert("Invalid JSON: " + e.message);
+        }
+      });
+    </script>
+  </body>
+</html>
