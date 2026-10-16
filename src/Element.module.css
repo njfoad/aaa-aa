@@ -1,41 +1,64 @@
 /* =========================================
-   LAYOUT (The New Cockpit)
+   LAYOUT (Forced Vertical Stack)
    ========================================= */
 .container {
-  display: flex;
-  gap: 24px;
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
   height: 100vh;
-  padding: 24px;
+  gap: 16px;
+  padding: 16px;
   background: #f4f6f8;
   font-family: Arial, Helvetica, sans-serif;
   box-sizing: border-box;
-}
-
-.leftColumn {
-  flex: 0 0 60%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.rightColumn {
-  flex: 0 0 40%;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  overflow-y: auto;
 }
 
 /* =========================================
-   CARDS & TYPOGRAPHY (From your App.css)
+   BANNER
+   ========================================= */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* Added to push button right */
+  padding-bottom: 12px;
+  border-bottom: 2px solid #ddd;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.bannerLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bannerLogo {
+  max-height: 32px !important;
+  width: auto;
+  object-fit: contain;
+}
+
+.bannerTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* =========================================
+   CARDS & TYPOGRAPHY
    ========================================= */
 .actionHeroCard,
-.chatWindow,
-.procedureHeader,
 .stepperContainer {
   background: white;
-  border-radius: 10px;
-  padding: 20px;
+  border-radius: 8px;
+  padding: 16px;
   border: 1px solid #ddd;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .label {
@@ -43,76 +66,78 @@
   font-weight: bold;
   letter-spacing: 0.8px;
   color: #666;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   text-transform: uppercase;
 }
 
 .actionText {
   margin: 0;
-  font-size: 24px; /* Scaled up for the hero block */
+  font-size: 20px;
   font-weight: 600;
   line-height: 1.4;
   color: #111;
 }
 
 /* =========================================
-   LIVE TRANSCRIPT CHAT
+   CALL REASON & ACTION CARDS
    ========================================= */
-.chatWindow {
-  flex-grow: 1; /* Fills remaining vertical space */
-  overflow-y: auto;
-}
-
-.chatFeed {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.chatCaller, .chatAgent {
-  padding: 10px 14px;
+.callReasonCard {
+  background: #eef2f6; /* Soft blue/grey to separate it from the action */
   border-radius: 8px;
-  font-size: 14px;
+  padding: 16px;
+  border: 1px solid #d0d7de;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.reasonText {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
   line-height: 1.4;
+  color: #0056b3; /* Brand blue to match your AAA logo */
 }
 
-.chatCaller {
-  background: #f1f3f5;
-  align-self: flex-start;
-  max-width: 80%;
-}
-
-.chatAgent {
-  background: #e3f2fd;
-  align-self: flex-end;
-  max-width: 80%;
-}
-
-.emptyText {
-  color: #888;
-  font-size: 14px;
-  font-style: italic;
-}
+/* (Keep your existing .actionHeroCard and .actionText exactly as they are) */
 
 /* =========================================
-   VISUAL STEPPER
+   PROCEDURE HEADER & VISUAL STEPPER
    ========================================= */
+.procedureHeader {
+  margin-bottom: 16px;
+}
+
+.procedureTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #111;
+  line-height: 1.3;
+}
+
 .progressBar {
   font-size: 13px;
   color: #0056b3;
   font-weight: bold;
-  margin-top: 8px;
+  margin-top: 6px;
+}
+
+.stepList {
+  display: flex;
+  flex-direction: column;
 }
 
 .stepItem {
   display: flex;
   gap: 12px;
   padding: 12px 0;
-  border-bottom: 1px solid #eee;
+  border-top: 1px solid #eee;
 }
 
-.stepItem:last-child {
-  border-bottom: none;
+.stepItem:first-child {
+  border-top: none;
+  padding-top: 0;
 }
 
 .stepIndicator {
@@ -124,6 +149,7 @@
   border-radius: 50%;
   font-size: 12px;
   font-weight: bold;
+  flex-shrink: 0;
 }
 
 /* Status variants for the stepper */
@@ -153,10 +179,26 @@
   text-decoration: line-through;
 }
 
+.stepDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stepLabel {
+  font-size: 14px;
+}
+
 .stepValue {
   font-size: 13px;
   color: #555;
-  margin-top: 4px;
+  margin-top: 2px;
+}
+
+.emptyText {
+  color: #888;
+  font-size: 14px;
+  font-style: italic;
 }
 
 /* =========================================
@@ -164,6 +206,139 @@
    ========================================= */
 .systemFooter {
   font-size: 11px;
-  color: #777;
-  text-align: right;
+  color: #aaa;
+  text-align: left;
+  margin-top: auto;
+  padding-top: 16px;
+  width: 100%;
+}
+
+/* =========================================
+   DEBUG PANEL & BUTTON
+   ========================================= */
+.debugBtn {
+  background: #f1f3f5;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #495057;
+  cursor: pointer;
+}
+
+.debugBtn:hover {
+  background: #e9ecef;
+}
+
+.debugBtnActive {
+  background: #343a40;
+  border: 1px solid #343a40;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+}
+
+.debugPanel {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  background: #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  color: #d4d4d4;
+  font-family: monospace;
+}
+
+.debugPanelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #252526;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.debugPanelHeader h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #fff;
+}
+
+.copyBtn {
+  background: #007acc;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.logContainer {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.logEntry {
+  background: #2d2d2d;
+  border-radius: 6px;
+  padding: 10px;
+  border-left: 4px solid #555;
+}
+
+.logHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 12px;
+}
+
+.logTime {
+  color: #858585;
+}
+
+.logTitle {
+  font-weight: bold;
+  color: #e3e3e3;
+  flex-grow: 1;
+}
+
+.logDuration {
+  color: #4ec9b0;
+  font-weight: bold;
+}
+
+.logBadge {
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.badge_API_REQ { background: #007acc; }
+.badge_API_RES { background: #4ec9b0; color: #1e1e1e; }
+.badge_EVENT   { background: #c586c0; }
+.badge_STATE   { background: #ce9178; color: #1e1e1e; }
+
+.logData {
+  margin: 0;
+  padding: 8px;
+  background: #1e1e1e;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #9cdcfe;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
